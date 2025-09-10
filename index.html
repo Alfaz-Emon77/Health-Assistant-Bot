@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Assistant Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+            background: #e0f2fe;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23b9d6f2" fill-opacity="0.2"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM12 6v-4H10v4H6v2h4v4h2V8h4V6h-4zm0 18v-4H10v4H6v2h4v4h2v-4h4v-2h-4zm0 18v-4H10v4H6v2h4v4h2v-4h4v-2h-4zm0 18v-4H10v4H6v2h4v4h2v-4h4v-2h-4zM48 6v-4h-2v4h-4v2h4v4h2V8h4V6h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            background-size: cover;
+            background-attachment: fixed;
+            transition: background-color 0.5s ease-in-out;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease-in-out;
+        }
+        .btn {
+            background-image: linear-gradient(to right, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .input-group input[type="checkbox"]:checked + label {
+            background-color: #e0f2ff;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .disease-list li, .doctor-btn {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .disease-list li:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .language-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: #1f2937;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .language-toggle:hover {
+            background-color: #374151;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <button id="language-toggle" class="language-toggle">BN</button>
+
+    <div id="app-container" class="container mx-auto p-6 bg-white rounded-3xl shadow-2xl flex flex-col items-center animate-fade-in">
+
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="flex flex-col items-center text-center p-8 transition-opacity duration-500">
+            <h1 id="welcome-title" class="text-5xl sm:text-6xl font-bold text-gray-800 mb-4 animate-bounce">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-500">
+                    Health Assistant Bot
+                </span>
+            </h1>
+            <p id="welcome-message" class="text-lg sm:text-xl text-gray-600 max-w-xl mb-8"></p>
+            <button id="start-diagnosis-btn" class="btn"></button>
+        </div>
+
+        <!-- Diagnosis Screen -->
+        <div id="diagnosis-screen" class="hidden w-full transition-opacity duration-500">
+            <h2 id="symptoms-header" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+            <p id="symptoms-sub-header" class="text-gray-600 mb-6"></p>
+            <div id="symptom-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <!-- Symptoms will be dynamically injected here -->
+            </div>
+            <div class="flex justify-end">
+                <button id="diagnose-btn" class="btn"></button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden w-full transition-opacity duration-500">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex-1">
+                    <h2 id="results-header" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+                    <div id="diagnosis-message" class="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500 text-blue-800 mb-6">
+                        <p id="results-sub-header" class="font-semibold text-lg"></p>
+                    </div>
+                    <ul id="disease-list" class="space-y-4 mb-6 text-gray-700">
+                        <!-- Results will be dynamically injected here -->
+                    </ul>
+                </div>
+                <div class="flex-1">
+                    <h2 id="doctors-header" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+                    <p id="doctors-sub-header" class="text-gray-600 mb-4"></p>
+                    <div id="doctor-consult-list" class="space-y-4">
+                        <!-- Doctor buttons will be injected here -->
+                    </div>
+                </div>
+            </div>
+            <p id="disclaimer-message" class="text-sm text-gray-500 text-center mt-6 mb-6"></p>
+            <div class="flex justify-between items-center">
+                <button id="go-back-btn" class="text-gray-600 hover:text-gray-900 font-medium"></button>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div class="mt-8 text-sm text-gray-500 text-center">
+        Made by Alfaz Emon
+    </div>
+
+    <script>
+        const symptomsData = {
+            "itching": ["Fungal infection", "Drug Reaction", "Chicken pox"],
+            "skin_rash": ["Fungal infection", "Drug Reaction", "Chicken pox", "Psoriasis", "Impetigo"],
+            "nodal_skin_eruptions": ["Fungal infection"],
+            "continuous_sneezing": ["Allergy", "Chronic cholestasis", "Hypertension"],
+            "shivering": ["Common Cold", "Malaria", "Dengue"],
+            "chills": ["Common Cold", "Malaria", "Dengue"],
+            "joint_pain": ["Arthritis", "Dengue", "Chikungunya"],
+            "stomach_pain": ["GERD", "Chronic cholestasis", "Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "acidity": ["GERD", "Chronic cholestasis", "Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "ulcers_on_tongue": ["Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "muscle_wasting": ["Diabetes ", "Hypoglycemia", "Pneumonia", "AIDS", "Jaundice"],
+            "vomiting": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "burning_micturition": ["Urinary tract infection", "Typhoid", "Chicken pox", "Urinary tract infection"],
+            "spotting_ urination": ["Urinary tract infection"],
+            "fatigue": ["Common Cold", "Malaria", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis", "Tuberculosis", "Hypoglycemia", "Gastroenteritis"],
+            "weight_gain": ["Hyperthyroidism", "Diabetes "],
+            "anxiety": ["Hyperthyroidism", "Diabetes ", "Heart attack", "Pneumonia", "Hypoglycemia"],
+            "cold_hands_and_feets": ["Hypoglycemia"],
+            "mood_swings": ["Hyperthyroidism", "Thyroiditis", "Pneumonia", "AIDS", "Jaundice"],
+            "weight_loss": ["Psoriasis", "Impetigo", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Tuberculosis", "AIDS"],
+            "restlessness": ["Hypoglycemia"],
+            "lethargy": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis", "Tuberculosis", "Hypoglycemia", "Gastroenteritis"],
+            "patches_in_throat": ["Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "irregular_sugar_level": ["Diabetes ", "Hypoglycemia", "Pneumonia", "AIDS", "Jaundice"],
+            "cough": ["Common Cold", "Typhoid", "Tuberculosis", "Pneumonia", "Allergy"],
+            "high_fever": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Tuberculosis", "Pneumonia"],
+            "sunken_eyes": ["Dehydration", "Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "breathlessness": ["Pneumonia", "Heart attack", "Tuberculosis", "Asthma", "COPD"],
+            "sweating": ["Hypoglycemia", "Diabetes ", "Heart attack", "Tuberculosis", "Pneumonia", "Allergy"],
+            "dehydration": ["Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "indigestion": ["GERD", "Chronic cholestasis", "Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "headache": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Tuberculosis", "Pneumonia"],
+            "yellowish_skin": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "dark_urine": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "nausea": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis", "Gastroenteritis"],
+            "loss_of_appetite": ["Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis", "Tuberculosis", "Pneumonia"],
+            "pain_behind_the_eyes": ["Dengue"],
+            "back_pain": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "constipation": ["Typhoid", "Peptic ulcer disease", "GERD", "Chronic cholestasis"],
+            "abdominal_pain": ["Typhoid", "Peptic ulcer disease", "GERD", "Chronic cholestasis", "Gastroenteritis"],
+            "diarrhoea": ["Typhoid", "Gastroenteritis", "Peptic ulcer disease"],
+            "mild_fever": ["Common Cold", "Typhoid", "Tuberculosis", "Pneumonia", "Allergy"],
+            "yellow_urine": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "yellowing_of_eyes": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "acute_liver_failure": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "fluid_overload": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "swelling_of_stomach": ["Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "swelled_lymph_nodes": ["Fungal infection", "Drug Reaction", "Chicken pox"],
+            "malaise": ["Common Cold", "Malaria", "Dengue", "Typhoid", "Jaundice", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis", "Tuberculosis", "Pneumonia"],
+            "blurred_and_distorted_vision": ["Hypertension", "Heart attack", "Stroke"],
+            "phlegm": ["Common Cold", "Tuberculosis", "Pneumonia", "Allergy"],
+            "throat_irritation": ["Common Cold", "Allergy"],
+            "redness_of_eyes": ["Allergy"],
+            "sinus_pressure": ["Allergy"],
+            "runny_nose": ["Common Cold", "Allergy"],
+            "congestion": ["Common Cold", "Allergy"],
+            "chest_pain": ["Heart attack", "Cervical spondylosis", "Asthma", "COPD"],
+            "weakness_in_limbs": ["Paralysis (brain hemorrhage)", "Arthritis", "Cervical spondylosis", "Migraine"],
+            "fast_heart_rate": ["Heart attack", "Hyperthyroidism"],
+            "pain_during_bowel_movements": ["Hemorrhoids"],
+            "pain_in_anal_region": ["Hemorrhoids"],
+            "bloody_stool": ["Hemorrhoids"],
+            "irritation_in_anus": ["Hemorrhoids"],
+            "neck_pain": ["Cervical spondylosis", "Migraine"],
+            "dizziness": ["(vertigo) Paroymsal  Positional Vertigo", "Typhoid", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "cramps": ["Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "bruising": ["Dengue", "Chikungunya"],
+            "obesity": ["(vertigo) Paroymsal  Positional Vertigo", "Diabetes "],
+            "swollen_legs": ["Varicose veins", "Arthritis", "Cervical spondylosis"],
+            "swollen_blood_vessels": ["Varicose veins"],
+            "puffy_face_and_eyes": ["Hyperthyroidism", "Thyroiditis"],
+            "enlarged_thyroid": ["Hyperthyroidism", "Thyroiditis"],
+            "brittle_nails": ["Hyperthyroidism", "Thyroiditis"],
+            "swollen_extremeties": ["Arthritis"],
+            "excessive_hunger": ["Diabetes ", "Hypoglycemia"],
+            "extra_marital_contacts": ["AIDS"],
+            "drying_and_tingling_lips": ["Hypoglycemia"],
+            "slurred_speech": ["Paralysis (brain hemorrhage)", "Stroke"],
+            "knee_pain": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "hip_joint_pain": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "swelling_joints": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "movement_stiffness": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "spinning_head": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "loss_of_balance": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "unsteadiness": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "weakness_of_one_body_side": ["Paralysis (brain hemorrhage)", "Stroke"],
+            "loss_of_smell": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "bladder_discomfort": ["Urinary tract infection"],
+            "foul_smell_ofurine": ["Urinary tract infection"],
+            "continuous_feel_of_urine": ["Urinary tract infection"],
+            "passage_of_gases": ["Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "internal_itching": ["Chronic cholestasis"],
+            "toxic_look_(typhos)": ["Typhoid", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "depression": ["Hyperthyroidism", "Thyroiditis", "Pneumonia", "AIDS", "Jaundice"],
+            "irritability": ["Hyperthyroidism", "Thyroiditis", "Pneumonia", "AIDS", "Jaundice"],
+            "visual_disturbances": ["Hypertension", "Heart attack", "Stroke"],
+            "history_of_alcohol_consumption": ["Alcoholic hepatitis"],
+            "fluid_overload.1": ["Heart failure"],
+            "swelling_of_blood_vessels": ["Varicose veins"],
+            "prominent_veins_on_calf": ["Varicose veins"],
+            "puffy_face_and_eyes.1": ["Hyperthyroidism", "Thyroiditis"],
+            "brittle_nails.1": ["Hyperthyroidism", "Thyroiditis"],
+            "swollen_extremeties.1": ["Arthritis"],
+            "uncontrolled_sugar_level": ["Diabetes "],
+            "extra_marital_contacts.1": ["AIDS"],
+            "drying_and_tingling_lips.1": ["Hypoglycemia"],
+            "slurred_speech.1": ["Paralysis (brain hemorrhage)", "Stroke"],
+            "knee_pain.1": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "hip_joint_pain.1": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "swelling_joints.1": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "movement_stiffness.1": ["Arthritis", "Cervical spondylosis", "Migraine"],
+            "spinning_head.1": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "loss_of_balance.1": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "unsteadiness.1": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "weakness_of_one_body_side.1": ["Paralysis (brain hemorrhage)", "Stroke"],
+            "loss_of_smell.1": ["(vertigo) Paroymsal  Positional Vertigo"],
+            "bladder_discomfort.1": ["Urinary tract infection"],
+            "foul_smell_ofurine.1": ["Urinary tract infection"],
+            "continuous_feel_of_urine.1": ["Urinary tract infection"],
+            "passage_of_gases.1": ["Gastroenteritis", "Typhoid", "Peptic ulcer disease"],
+            "internal_itching.1": ["Chronic cholestasis"],
+            "toxic_look_(typhos).1": ["Typhoid", "Hepatitis A", "Hepatitis B", "Hepatitis C", "Hepatitis D", "Hepatitis E", "Chronic cholestasis"],
+            "depression.1": ["Hyperthyroidism", "Thyroiditis", "Pneumonia", "AIDS", "Jaundice"],
+            "irritability.1": ["Hyperthyroidism", "Thyroiditis", "Pneumonia", "AIDS", "Jaundice"],
+            "visual_disturbances.1": ["Hypertension", "Heart attack", "Stroke"],
+            "history_of_alcohol_consumption.1": ["Alcoholic hepatitis"]
+        };
+        
+        const allSymptoms = Object.keys(symptomsData);
+        const allDiseases = [...new Set(Object.values(symptomsData).flat())].sort();
+
+        const translations = {
+            en: {
+                welcomeTitle: "Health Assistant Bot",
+                welcomeMessage: "This tool is for informational purposes only. It is not a substitute for professional medical advice. For any health concerns, consult a qualified healthcare provider.",
+                startButton: "Start New Diagnosis",
+                symptomsHeader: "Select Your Symptoms",
+                symptomsSubHeader: "Please select all the symptoms you are experiencing.",
+                diagnoseButton: "Diagnose",
+                resultsHeader: "Diagnosis Results",
+                resultsSubHeader: "Based on your symptoms, here are the top 3 possible diseases. Click on a disease to learn more.",
+                doctorsHeader: "Find a Doctor in Bangladesh",
+                doctorsSubHeader: "Find a specialist doctor for the disease. Use the links below to find a qualified doctor in Bangladesh.",
+                disclaimer: "This is not medical advice. Always consult a health professional.",
+                goBackButton: "← Go Back",
+                symptoms: {
+                    "itching": "Itching", "skin_rash": "Skin Rash", "nodal_skin_eruptions": "Nodal Skin Eruptions", "continuous_sneezing": "Continuous Sneezing", "shivering": "Shivering", "chills": "Chills", "joint_pain": "Joint Pain", "stomach_pain": "Stomach Pain", "acidity": "Acidity", "ulcers_on_tongue": "Ulcers on Tongue", "muscle_wasting": "Muscle Wasting", "vomiting": "Vomiting", "burning_micturition": "Burning Micturition", "spotting_ urination": "Spotting Urination", "fatigue": "Fatigue", "weight_gain": "Weight Gain", "anxiety": "Anxiety", "cold_hands_and_feets": "Cold Hands and Feet", "mood_swings": "Mood Swings", "weight_loss": "Weight Loss", "restlessness": "Restlessness", "lethargy": "Lethargy", "patches_in_throat": "Patches in Throat", "irregular_sugar_level": "Irregular Sugar Level", "cough": "Cough", "high_fever": "High Fever", "sunken_eyes": "Sunken Eyes", "breathlessness": "Breathlessness", "sweating": "Sweating", "dehydration": "Dehydration", "indigestion": "Indigestion", "headache": "Headache", "yellowish_skin": "Yellowish Skin", "dark_urine": "Dark Urine", "nausea": "Nausea", "loss_of_appetite": "Loss of Appetite", "pain_behind_the_eyes": "Pain Behind the Eyes", "back_pain": "Back Pain", "constipation": "Constipation", "abdominal_pain": "Abdominal Pain", "diarrhoea": "Diarrhoea", "mild_fever": "Mild Fever", "yellow_urine": "Yellow Urine", "yellowing_of_eyes": "Yellowing of Eyes", "acute_liver_failure": "Acute Liver Failure", "fluid_overload": "Fluid Overload", "swelling_of_stomach": "Swelling of Stomach", "swelled_lymph_nodes": "Swelled Lymph Nodes", "malaise": "Malaise", "blurred_and_distorted_vision": "Blurred and Distorted Vision", "phlegm": "Phlegm", "throat_irritation": "Throat Irritation", "redness_of_eyes": "Redness of Eyes", "sinus_pressure": "Sinus Pressure", "runny_nose": "Runny Nose", "congestion": "Congestion", "chest_pain": "Chest Pain", "weakness_in_limbs": "Weakness in Limbs", "fast_heart_rate": "Fast Heart Rate", "pain_during_bowel_movements": "Pain During Bowel Movements", "pain_in_anal_region": "Pain in Anal Region", "bloody_stool": "Bloody Stool", "irritation_in_anus": "Irritation in Anus", "neck_pain": "Neck Pain", "dizziness": "Dizziness", "cramps": "Cramps", "bruising": "Bruising", "obesity": "Obesity", "swollen_legs": "Swollen Legs", "swollen_blood_vessels": "Swollen Blood Vessels", "puffy_face_and_eyes": "Puffy Face and Eyes", "enlarged_thyroid": "Enlarged Thyroid", "brittle_nails": "Brittle Nails", "swollen_extremeties": "Swollen Extremities", "excessive_hunger": "Excessive Hunger", "extra_marital_contacts": "Extra Marital Contacts", "drying_and_tingling_lips": "Drying and Tingling Lips", "slurred_speech": "Slurred Speech", "knee_pain": "Knee Pain", "hip_joint_pain": "Hip Joint Pain", "swelling_joints": "Swelling Joints", "movement_stiffness": "Movement Stiffness", "spinning_head": "Spinning Head", "loss_of_balance": "Loss of Balance", "unsteadiness": "Unsteadiness", "weakness_of_one_body_side": "Weakness of One Body Side", "loss_of_smell": "Loss of Smell", "bladder_discomfort": "Bladder Discomfort", "foul_smell_ofurine": "Foul Smell of Urine", "continuous_feel_of_urine": "Continuous Feel of Urine", "passage_of_gases": "Passage of Gases", "internal_itching": "Internal Itching", "toxic_look_(typhos)": "Toxic Look (Typhos)", "depression": "Depression", "irritability": "Irritability", "visual_disturbances": "Visual Disturbances", "history_of_alcohol_consumption": "History of Alcohol Consumption", "fluid_overload.1": "Fluid Overload", "swelling_of_blood_vessels": "Swelling of Blood Vessels", "prominent_veins_on_calf": "Prominent Veins on Calf", "puffy_face_and_eyes.1": "Puffy Face and Eyes", "brittle_nails.1": "Brittle Nails", "swollen_extremeties.1": "Swollen Extremities", "uncontrolled_sugar_level": "Uncontrolled Sugar Level", "extra_marital_contacts.1": "Extra Marital Contacts", "drying_and_tingling_lips.1": "Drying and Tingling Lips", "slurred_speech.1": "Slurred Speech", "knee_pain.1": "Knee Pain", "hip_joint_pain.1": "Hip Joint Pain", "swelling_joints.1": "Swelling Joints", "movement_stiffness.1": "Movement Stiffness", "spinning_head.1": "Spinning Head", "loss_of_balance.1": "Loss of Balance", "unsteadiness.1": "Unsteadiness", "weakness_of_one_body_side.1": "Weakness of One Body Side", "loss_of_smell.1": "Loss of Smell", "bladder_discomfort.1": "Bladder Discomfort", "foul_smell_ofurine.1": "Foul Smell of Urine", "continuous_feel_of_urine.1": "Continuous Feel of Urine", "passage_of_gases.1": "Passage of Gases", "internal_itching.1": "Internal Itching", "toxic_look_(typhos).1": "Toxic Look (Typhos)", "depression.1": "Depression", "irritability.1": "Irritability", "visual_disturbances.1": "Visual Disturbances", "history_of_alcohol_consumption.1": "History of Alcohol Consumption"
+                },
+                diseases: {
+                    "Fungal infection": "ছত্রাক সংক্রমণ", "Drug Reaction": "ড্রাগ রিঅ্যাকশন", "Chicken pox": "জলবসন্ত", "Psoriasis": "সোরিয়াসিস", "Impetigo": "ইম্পেটিগো", "Allergy": "অ্যালার্জি", "Chronic cholestasis": "ক্রনিক কোলেস্টেসিস", "Hypertension": "হাইপারটেনশন", "Common Cold": "সাধারণ সর্দি", "Malaria": "ম্যালেরিয়া", "Dengue": "ডেঙ্গু", "Arthritis": "আর্থারাইটিস", "Chikungunya": "চিকুনগুনিয়া", "GERD": "জিইআরডি", "Gastroenteritis": "গ্যাস্ট্রোএন্টেরাইটিস", "Typhoid": "টাইফয়েড", "Peptic ulcer disease": "পেপটিক আলসার রোগ", "Diabetes ": "ডায়াবেটিস", "Hypoglycemia": "হাইপোগ্লাইসেমিয়া", "Pneumonia": "নিউমোনিয়া", "AIDS": "এইডস", "Jaundice": "জন্ডিস", "Hepatitis A": "হেপাটাইটিস এ", "Hepatitis B": "হেপাটাইটিস বি", "Hepatitis C": "হেপাটাইটিস সি", "Hepatitis D": "হেপাটাইটিস ডি", "Hepatitis E": "হেপাটাইটিস ই", "Tuberculosis": "যক্ষ্মা", "Heart attack": "হার্ট অ্যাটাক", "Thyroiditis": "থাইরয়েডাইটিস", "Dehydration": "ডিহাইড্রেশন", "Asthma": "অ্যাজমা", "COPD": "সিওপিডি", "Paralysis (brain hemorrhage)": "প্যারালাইসিস (মস্তিষ্কের রক্তক্ষরণ)", "Stroke": "স্ট্রোক", "Hemorrhoids": "হেমোরয়েডস", "Cervical spondylosis": "সার্ভিকাল স্পন্ডাইলোসিস", "Migraine": "মাইগ্রেন", "(vertigo) Paroymsal  Positional Vertigo": "(ভার্টিগো) প্যারোক্সিসমাল পজিশনাল ভার্টিগো", "Urinary tract infection": "মূত্রনালীর সংক্রমণ", "Alcoholic hepatitis": "অ্যালকোহলিক হেপাটাইটিস", "Heart failure": "হার্ট ফেইলিওর", "Varicose veins": "ভ্যারিকোজ ভেইনস"
+                }
+            }
+        };
+
+        // UI elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const diagnosisScreen = document.getElementById('diagnosis-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startDiagnosisBtn = document.getElementById('start-diagnosis-btn');
+        const diagnoseBtn = document.getElementById('diagnose-btn');
+        const goBackBtn = document.getElementById('go-back-btn');
+        const languageToggleBtn = document.getElementById('language-toggle');
+
+        // Dynamic Text Elements
+        const welcomeTitleEl = document.getElementById('welcome-title');
+        const welcomeMessageEl = document.getElementById('welcome-message');
+        const startDiagnosisBtnEl = document.getElementById('start-diagnosis-btn');
+        const symptomsHeaderEl = document.getElementById('symptoms-header');
+        const symptomsSubHeaderEl = document.getElementById('symptoms-sub-header');
+        const diagnoseBtnEl = document.getElementById('diagnose-btn');
+        const resultsHeaderEl = document.getElementById('results-header');
+        const resultsSubHeaderEl = document.getElementById('results-sub-header');
+        const doctorsHeaderEl = document.getElementById('doctors-header');
+        const doctorsSubHeaderEl = document.getElementById('doctors-sub-header');
+        const disclaimerMessageEl = document.getElementById('disclaimer-message');
+        const goBackBtnEl = document.getElementById('go-back-btn');
+
+        let currentLang = 'en';
+
+        // Function to update all static text based on the current language
+        function updateUI() {
+            const lang = translations[currentLang];
+            welcomeTitleEl.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-500">${lang.welcomeTitle}</span>`;
+            welcomeMessageEl.textContent = lang.welcomeMessage;
+            startDiagnosisBtnEl.textContent = lang.startButton;
+            symptomsHeaderEl.textContent = lang.symptomsHeader;
+            symptomsSubHeaderEl.textContent = lang.symptomsSubHeader;
+            diagnoseBtnEl.textContent = lang.diagnoseButton;
+            resultsHeaderEl.textContent = lang.resultsHeader;
+            resultsSubHeaderEl.textContent = lang.resultsSubHeader;
+            doctorsHeaderEl.textContent = lang.doctorsHeader;
+            doctorsSubHeaderEl.textContent = lang.doctorsSubHeader;
+            disclaimerMessageEl.textContent = lang.disclaimer;
+            goBackBtnEl.textContent = lang.goBackButton;
+
+            // Update language toggle button text
+            languageToggleBtn.textContent = currentLang === 'en' ? 'BN' : 'EN';
+        }
+
+        // Function to show custom message box (no change needed here)
+        function showMessage(title, message) {
+            alert(`${title}\n\n${message}`);
+        }
+
+        // Screen management
+        function showScreen(screen) {
+            welcomeScreen.classList.add('hidden');
+            diagnosisScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            screen.classList.remove('hidden');
+            screen.classList.add('fade-in');
+        }
+
+        function renderSymptomSelection() {
+            const symptomListEl = document.getElementById('symptom-list');
+            symptomListEl.innerHTML = '';
+            const symptomsToDisplay = allSymptoms.map(symptom => translations[currentLang].symptoms[symptom] || symptom);
+            allSymptoms.forEach((symptom, index) => {
+                const inputId = `symptom-${symptom.replace(/ /g, '_').replace(/\(|\)/g, '')}`;
+                const symptomTranslated = symptomsToDisplay[index];
+                const symptomHtml = `
+                    <div class="input-group relative group">
+                        <input type="checkbox" id="${inputId}" value="${symptom}" class="hidden peer">
+                        <label for="${inputId}" class="flex items-center p-3 rounded-lg border-2 border-gray-200 transition-colors duration-200 cursor-pointer hover:bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500">
+                            <span class="text-sm font-medium text-gray-700 capitalize">${symptomTranslated}</span>
+                        </label>
+                    </div>
+                `;
+                symptomListEl.innerHTML += symptomHtml;
+            });
+        }
+        
+        function diagnose() {
+            const selectedSymptoms = Array.from(document.querySelectorAll('#symptom-list input:checked')).map(el => el.value);
+            if (selectedSymptoms.length === 0) {
+                const title = currentLang === 'en' ? 'Selection Required' : 'নির্বাচন প্রয়োজন';
+                const message = currentLang === 'en' ? 'Please select at least one symptom to diagnose.' : 'রোগ নির্ণয়ের জন্য কমপক্ষে একটি উপসর্গ নির্বাচন করুন।';
+                showMessage(title, message);
+                return;
+            }
+
+            const diseaseScores = {};
+            allDiseases.forEach(disease => {
+                diseaseScores[disease] = 0;
+            });
+
+            selectedSymptoms.forEach(symptom => {
+                const diseasesForSymptom = symptomsData[symptom] || [];
+                diseasesForSymptom.forEach(disease => {
+                    if (diseaseScores.hasOwnProperty(disease)) {
+                        diseaseScores[disease]++;
+                    }
+                });
+            });
+
+            const sortedDiseases = Object.keys(diseaseScores).sort((a, b) => diseaseScores[b] - diseaseScores[a]);
+            const topDiseases = sortedDiseases.slice(0, 3);
+            
+            const diseaseListEl = document.getElementById('disease-list');
+            diseaseListEl.innerHTML = '';
+            topDiseases.forEach((disease, index) => {
+                const score = diseaseScores[disease];
+                const totalSymptoms = allSymptoms.filter(symptom => symptomsData[symptom].includes(disease)).length;
+                const confidence = totalSymptoms > 0 ? (score / totalSymptoms) * 100 : 0;
+                
+                const diseaseTranslated = translations[currentLang].diseases[disease] || disease;
+
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg transition-all duration-300';
+                
+                li.onclick = () => {
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(disease)}`;
+                    window.open(searchUrl, '_blank');
+                };
+                
+                const confidenceText = currentLang === 'en' ? `${confidence.toFixed(0)}% match` : `${confidence.toFixed(0)}% মিল`;
+                
+                li.innerHTML = `
+                    <div class="flex items-center space-x-3 flex-1">
+                        <span class="w-6 h-6 flex items-center justify-center font-bold text-white bg-blue-500 rounded-full">${index + 1}</span>
+                        <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center space-x-2">
+                           <span class="font-medium text-blue-700">${diseaseTranslated}</span>
+                           <div class="w-16 h-16 rounded-lg overflow-hidden mt-2 sm:mt-0">
+                               
+                           </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-gray-500 text-xs">
+                        <span>${confidenceText}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                `;
+                diseaseListEl.appendChild(li);
+            });
+
+            // Populate the doctor consult section
+            const doctorConsultListEl = document.getElementById('doctor-consult-list');
+            doctorConsultListEl.innerHTML = '';
+            topDiseases.forEach(disease => {
+                const diseaseTranslated = translations[currentLang].diseases[disease] || disease;
+                const buttonText = currentLang === 'en' ? `Find a Doctor for ${diseaseTranslated}` : `${diseaseTranslated} এর জন্য ডাক্তার খুঁজুন`;
+                const button = document.createElement('button');
+                button.className = 'doctor-btn w-full text-left bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors duration-200';
+                button.innerText = buttonText;
+                button.onclick = () => {
+                    const searchUrl = `https://www.google.com/search?q=doctors for ${encodeURIComponent(disease)} in Bangladesh`;
+                    window.open(searchUrl, '_blank');
+                };
+                doctorConsultListEl.appendChild(button);
+            });
+
+            showScreen(resultsScreen);
+        }
+
+        // Event listeners
+        startDiagnosisBtn.addEventListener('click', () => {
+            renderSymptomSelection();
+            showScreen(diagnosisScreen);
+        });
+        
+        diagnoseBtn.addEventListener('click', diagnose);
+        goBackBtn.addEventListener('click', () => {
+            document.querySelectorAll('#symptom-list input:checked').forEach(checkbox => checkbox.checked = false);
+            showScreen(welcomeScreen);
+        });
+        
+        languageToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'bn' : 'en';
+            updateUI();
+            renderSymptomSelection();
+        });
+        
+        // Set initial state
+        updateUI();
+
+    </script>
+</body>
+</html>
